@@ -522,7 +522,7 @@ body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%
 
 <!-- ═══════════ SCRIPT ═══════════ -->
 <script>
-const API = "https://script.google.com/macros/s/AKfycbxKuySw4Hna_aXQkhd2jrmr5-MD-2ohui6v-1q6IpJVu_7KOozKpNn0W4-nJAalplJN6A/exec";
+const API = "https://script.google.com/macros/s/AKfycbyA_QbyjJU1koCv_DCHp3URURGPA19Kt2FC9LV8UlBLmO5fxOqkr21aMPOhRgSysLyDgA/exec";
 
 // ── State ──
 let currentUser = null;
@@ -643,8 +643,11 @@ function showMain() {
 
 // ═══ API Call ═══
 async function apiCall(data) {
-  const res = await fetch(API, {method:'POST', body:JSON.stringify(data), headers:{'Content-Type':'application/json'}});
-  return res.json();
+  const params = new URLSearchParams(data);
+  const res = await fetch(API + '?' + params.toString(), {method:'GET', redirect:'follow'});
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch { throw new Error('API response error: ' + text.slice(0,100)); }
 }
 
 // ═══ Cards ═══
