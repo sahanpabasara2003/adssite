@@ -1,1147 +1,464 @@
 <!DOCTYPE html>
-<html lang="si">
+<html lang="en" class="light">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HubZone — Your Content Hub</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #0a0a0f;
-  --bg2: #111118;
-  --bg3: #1a1a24;
-  --surface: #1e1e2e;
-  --surface2: #252538;
-  --accent: #7c6dfa;
-  --accent2: #a78bfa;
-  --accent3: #06d6a0;
-  --text: #e8e8f0;
-  --text2: #9999b3;
-  --text3: #55556a;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --glow: rgba(124,109,250,0.15);
-  --radius: 16px;
-  --radius-sm: 10px;
-  --font-head: 'Syne', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --admin-accent: #f59e0b;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(124,109,250,0.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(6,214,160,0.05) 0%,transparent 50%);pointer-events:none;z-index:0}
-
-/* ── Scrollbar ── */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:var(--bg2)}
-::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:3px}
-
-/* ── Auth Screen ── */
-#auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
-.auth-box{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:40px;position:relative;overflow:hidden}
-.auth-box::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(124,109,250,0.2),transparent 70%);border-radius:50%;pointer-events:none}
-.auth-logo{font-family:var(--font-head);font-size:28px;font-weight:800;color:var(--text);margin-bottom:8px;letter-spacing:-0.5px}
-.auth-logo span{color:var(--accent)}
-.auth-sub{color:var(--text2);font-size:14px;margin-bottom:32px}
-.auth-tabs{display:flex;gap:4px;background:var(--bg2);border-radius:var(--radius-sm);padding:4px;margin-bottom:28px}
-.auth-tab{flex:1;padding:9px;text-align:center;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);transition:all .2s}
-.auth-tab.active{background:var(--surface2);color:var(--text)}
-.field{margin-bottom:16px}
-.field label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
-.field input{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 16px;color:var(--text);font-size:14px;font-family:var(--font-body);outline:none;transition:border-color .2s}
-.field input:focus{border-color:var(--accent)}
-.btn-primary{width:100%;padding:13px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s;position:relative;overflow:hidden}
-.btn-primary:hover{background:#6d5ef5;transform:translateY(-1px)}
-.btn-primary:active{transform:translateY(0)}
-.auth-msg{margin-top:14px;padding:10px 14px;border-radius:8px;font-size:13px;text-align:center;display:none}
-.auth-msg.err{background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.2)}
-.auth-msg.ok{background:rgba(6,214,160,0.12);color:#06d6a0;border:1px solid rgba(6,214,160,0.2)}
-
-/* ── Main Layout ── */
-#main-screen{display:none;min-height:100vh}
-.topbar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;gap:16px}
-.topbar-logo{font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
-.topbar-logo span{color:var(--accent)}
-.search-wrap{flex:1;max-width:400px;position:relative}
-.search-wrap input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:9px 16px 9px 40px;color:var(--text);font-size:13px;font-family:var(--font-body);outline:none;transition:border-color .2s}
-.search-wrap input:focus{border-color:var(--accent)}
-.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px}
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-.user-pill{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:6px 14px 6px 8px;font-size:13px}
-.user-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
-.btn-logout{background:none;border:1px solid var(--border2);border-radius:50px;padding:6px 14px;color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--font-body);transition:all .2s}
-.btn-logout:hover{border-color:var(--text2);color:var(--text)}
-
-/* Card mode toggle */
-.card-toggle{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:6px 14px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s}
-.card-toggle:hover{border-color:var(--border2)}
-.toggle-dot{width:28px;height:16px;background:var(--surface2);border-radius:8px;position:relative;transition:background .2s}
-.toggle-dot::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;background:var(--text3);border-radius:50%;transition:all .2s}
-.toggle-dot.on{background:var(--accent)}
-.toggle-dot.on::after{background:#fff;left:14px}
-
-/* ── Content ── */
-.content{padding:28px 24px;position:relative;z-index:1;max-width:1300px;margin:0 auto}
-.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.section-title{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--text)}
-.section-title span{color:var(--text3);font-size:13px;font-weight:400;font-family:var(--font-body);margin-left:8px}
-
-/* ── Cards Grid ── */
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;transition:all .4s}
-.cards-grid.list-mode{grid-template-columns:1fr}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .25s;position:relative;animation:cardIn .4s ease both}
-@keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
-.card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.4),0 0 0 1px rgba(124,109,250,0.1)}
-.card-thumb{width:100%;aspect-ratio:16/9;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden}
-.card-thumb img{width:100%;height:100%;object-fit:cover}
-.card-thumb-emoji{font-size:44px;line-height:1}
-.card-locked{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);border-radius:6px;padding:4px 8px;font-size:11px;color:var(--text2);display:flex;align-items:center;gap:4px}
-.card-body{padding:14px}
-.card-name{font-family:var(--font-head);font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card-desc{font-size:12px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-clamp:2;overflow:hidden}
-.card-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(124,109,250,0.1);border:1px solid rgba(124,109,250,0.2);border-radius:50px;padding:3px 10px;font-size:11px;color:var(--accent2);margin-top:10px}
-
-/* list mode card */
-.cards-grid.list-mode .card{display:flex;flex-direction:row;aspect-ratio:unset}
-.cards-grid.list-mode .card-thumb{width:100px;min-width:100px;aspect-ratio:1;flex-shrink:0}
-.cards-grid.list-mode .card-thumb-emoji{font-size:32px}
-
-/* ── Admin Badge ── */
-.admin-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);border-radius:50px;padding:3px 10px;font-size:11px;color:var(--admin-accent);font-weight:600}
-
-/* ── Admin Panel ── */
-#admin-panel{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px)}
-.admin-drawer{position:absolute;right:0;top:0;bottom:0;width:440px;background:var(--bg2);border-left:1px solid var(--border2);overflow-y:auto;padding:28px;animation:slideIn .3s ease}
-@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
-.admin-head{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--admin-accent);margin-bottom:24px;display:flex;align-items:center;gap:10px}
-.admin-section{margin-bottom:28px}
-.admin-section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-.admin-field{margin-bottom:12px}
-.admin-field label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px}
-.admin-field input,.admin-field textarea,.admin-field select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;font-family:var(--font-body);outline:none;transition:border-color .2s}
-.admin-field textarea{resize:vertical;min-height:70px}
-.admin-field input:focus,.admin-field textarea:focus,.admin-field select:focus{border-color:var(--accent)}
-.admin-field select option{background:var(--bg3)}
-.btn-admin{padding:10px 20px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s}
-.btn-add{background:var(--accent);color:#fff}
-.btn-add:hover{background:#6d5ef5}
-.btn-cancel{background:var(--surface2);color:var(--text2)}
-.btn-cancel:hover{color:var(--text)}
-.btn-danger{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.2)}
-.btn-danger:hover{background:rgba(239,68,68,0.25)}
-.emoji-picker{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--bg3);border-radius:8px;max-height:120px;overflow-y:auto}
-.emoji-opt{font-size:22px;cursor:pointer;padding:4px;border-radius:6px;transition:background .15s;line-height:1}
-.emoji-opt:hover{background:var(--surface2)}
-.emoji-opt.selected{background:rgba(124,109,250,0.2)}
-
-/* card list in admin */
-.admin-card-list{display:flex;flex-direction:column;gap:8px}
-.admin-card-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px}
-.admin-card-emoji{font-size:22px;line-height:1}
-.admin-card-info{flex:1;min-width:0}
-.admin-card-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.admin-card-meta{font-size:11px;color:var(--text3);margin-top:2px}
-.admin-card-actions{display:flex;gap:6px}
-.btn-icon{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s}
-.btn-icon:hover{background:var(--surface2);color:var(--text)}
-.btn-icon.del:hover{background:rgba(239,68,68,0.15);color:#f87171;border-color:rgba(239,68,68,0.3)}
-
-/* ── Card Detail Page ── */
-#card-detail{display:none;position:fixed;inset:0;z-index:300;background:var(--bg);overflow-y:auto}
-.detail-back{position:sticky;top:0;background:rgba(10,10,15,0.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:12px;z-index:10}
-.btn-back{background:var(--surface);border:1px solid var(--border2);border-radius:50px;padding:7px 18px;color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--font-body);display:flex;align-items:center;gap:6px;transition:all .2s}
-.btn-back:hover{color:var(--text)}
-.detail-content{max-width:800px;margin:0 auto;padding:40px 24px}
-.detail-emoji{font-size:64px;margin-bottom:20px;display:block;line-height:1;animation:popIn .5s cubic-bezier(0.34,1.56,0.64,1) both}
-@keyframes popIn{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
-.detail-title{font-family:var(--font-head);font-size:32px;font-weight:800;color:var(--text);margin-bottom:12px;letter-spacing:-0.5px;animation:slideUp .4s ease .1s both}
-@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-.detail-desc{color:var(--text2);font-size:15px;line-height:1.7;margin-bottom:32px;animation:slideUp .4s ease .2s both}
-.detail-thumb{width:100%;border-radius:var(--radius);overflow:hidden;margin-bottom:28px;background:var(--surface);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;animation:slideUp .4s ease .15s both}
-.detail-thumb img{width:100%;height:100%;object-fit:cover}
-.detail-thumb-emoji{font-size:80px}
-.detail-links{display:flex;flex-direction:column;gap:12px;animation:slideUp .4s ease .25s both}
-.detail-link-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;display:flex;align-items:center;gap:16px;transition:all .25s}
-.detail-link-card:hover{border-color:var(--border2);transform:translateX(4px)}
-.detail-link-info{flex:1;min-width:0}
-.detail-link-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.detail-link-name{font-size:15px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.btn-download{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:var(--accent3);border:none;border-radius:50px;color:#0a2e24;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .25s;margin-top:20px;animation:slideUp .4s ease .3s both}
-.btn-download:hover{background:#04c08a;transform:translateY(-2px);box-shadow:0 8px 30px rgba(6,214,160,0.3)}
-.btn-visit{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:var(--accent);border:none;border-radius:50px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .25s;margin-top:12px;animation:slideUp .4s ease .35s both}
-.btn-visit:hover{background:#6d5ef5;transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,109,250,0.3)}
-
-/* ── Ad Overlay ── */
-#ad-overlay{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);align-items:center;justify-content:center}
-#ad-overlay.show{display:flex}
-.ad-box{background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:40px;max-width:480px;width:calc(100% - 40px);text-align:center;animation:adIn .4s cubic-bezier(0.34,1.56,0.64,1)}
-@keyframes adIn{from{transform:scale(0.85);opacity:0}to{transform:scale(1);opacity:1}}
-.ad-sponsor{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
-.ad-placeholder{width:100%;height:200px;background:var(--bg3);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:20px;border:1px dashed var(--border2);color:var(--text3);font-size:13px;gap:8px;overflow:hidden;position:relative}
-.ad-placeholder-inner{font-size:11px;color:var(--text3)}
-.ad-countdown{font-family:var(--font-head);font-size:36px;font-weight:800;color:var(--accent);margin:8px 0}
-.ad-countdown-label{font-size:13px;color:var(--text2);margin-bottom:20px}
-.ad-skip{background:none;border:1px solid var(--border2);border-radius:50px;padding:9px 24px;color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--font-body);transition:all .2s;display:flex;align-items:center;gap:6px;margin:0 auto}
-.ad-skip:hover:not(:disabled){border-color:var(--accent3);color:var(--accent3)}
-.ad-skip:disabled{opacity:0.4;cursor:not-allowed}
-
-/* ── Password Modal ── */
-#pw-modal{display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);align-items:center;justify-content:center}
-#pw-modal.show{display:flex}
-.pw-box{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:36px;max-width:360px;width:calc(100% - 40px);text-align:center;animation:adIn .35s cubic-bezier(0.34,1.56,0.64,1)}
-.pw-emoji{font-size:40px;margin-bottom:16px;display:block}
-.pw-title{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px}
-.pw-sub{font-size:13px;color:var(--text2);margin-bottom:24px}
-.pw-input{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-size:15px;font-family:var(--font-body);outline:none;text-align:center;letter-spacing:4px;margin-bottom:16px;transition:border-color .2s}
-.pw-input:focus{border-color:var(--accent)}
-.pw-err{font-size:12px;color:#f87171;margin-bottom:12px;min-height:16px}
-
-/* ── Feedback ── */
-#feedback-modal{display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);align-items:center;justify-content:center}
-#feedback-modal.show{display:flex}
-.feedback-box{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:36px;max-width:420px;width:calc(100% - 40px);animation:adIn .35s cubic-bezier(0.34,1.56,0.64,1)}
-.feedback-title{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px}
-.feedback-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
-.feedback-textarea{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:14px;color:var(--text);font-size:14px;font-family:var(--font-body);outline:none;resize:vertical;min-height:100px;margin-bottom:16px;transition:border-color .2s}
-.feedback-textarea:focus{border-color:var(--accent)}
-
-/* ── Floating Buttons ── */
-.fab-group{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:10px;z-index:200}
-.fab{width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .25s;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
-.fab-feedback{background:var(--accent);color:#fff}
-.fab-feedback:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(124,109,250,0.4)}
-.fab-admin{background:var(--admin-accent);color:#0a0a0f}
-.fab-admin:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(245,158,11,0.4)}
-
-/* ── Tools Section ── */
-.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
-.tool-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all .25s;text-align:center;animation:cardIn .4s ease both}
-.tool-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,0.3)}
-.tool-emoji{font-size:36px;margin-bottom:12px;display:block;line-height:1}
-.tool-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
-.tool-desc{font-size:12px;color:var(--text2)}
-
-/* ── Tool Detail ── */
-#tool-modal{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px}
-#tool-modal.show{display:flex}
-.tool-modal-box{background:var(--surface);border:1px solid var(--border2);border-radius:24px;width:100%;max-width:640px;max-height:85vh;overflow-y:auto;padding:32px;animation:adIn .35s cubic-bezier(0.34,1.56,0.64,1)}
-.tool-modal-head{display:flex;align-items:center;gap:16px;margin-bottom:24px}
-.tool-modal-emoji{font-size:40px;line-height:1}
-.tool-modal-title{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--text)}
-.tool-modal-sub{font-size:13px;color:var(--text2);margin-top:2px}
-.btn-close-modal{margin-left:auto;width:34px;height:34px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s}
-.btn-close-modal:hover{background:var(--surface2);color:var(--text)}
-.drop-zone{border:2px dashed var(--border2);border-radius:var(--radius);padding:40px;text-align:center;cursor:pointer;transition:all .25s;margin-bottom:16px}
-.drop-zone:hover,.drop-zone.dragover{border-color:var(--accent);background:rgba(124,109,250,0.05)}
-.drop-zone-text{font-size:14px;color:var(--text2);margin-top:8px}
-.drop-zone-hint{font-size:12px;color:var(--text3);margin-top:4px}
-.tool-result{margin-top:16px;padding:16px;background:var(--bg3);border-radius:10px;display:none}
-.tool-result.show{display:block}
-.tiktok-input-wrap{display:flex;gap:10px;margin-bottom:12px}
-.tiktok-input-wrap input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:11px 14px;color:var(--text);font-size:13px;font-family:var(--font-body);outline:none}
-.tiktok-input-wrap input:focus{border-color:var(--accent)}
-.btn-fetch{padding:11px 20px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);white-space:nowrap}
-.progress-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:12px;display:none}
-.progress-bar.show{display:block}
-.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:2px;transition:width .3s}
-
-/* ── Popup Ad (Adsterra/Monetag style) ── */
-#popup-ad{display:none;position:fixed;bottom:20px;left:20px;z-index:250;background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:16px;max-width:300px;box-shadow:0 8px 40px rgba(0,0,0,0.5);animation:popupIn .4s cubic-bezier(0.34,1.56,0.64,1)}
-@keyframes popupIn{from{transform:translateY(30px) scale(0.9);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
-.popup-close{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.popup-close:hover{background:var(--surface2)}
-.popup-label{font-size:10px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
-.popup-ad-space{width:100%;height:100px;background:var(--bg3);border-radius:8px;border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:11px}
-
-/* ── Sticky Ad Bars ── */
-.sticky-ad-top{position:fixed;top:60px;left:0;right:0;z-index:99;background:var(--bg2);border-bottom:1px solid var(--border);padding:6px;text-align:center;display:none}
-.sticky-ad-bottom{position:fixed;bottom:0;left:0;right:0;z-index:99;background:var(--bg2);border-top:1px solid var(--border);padding:6px;text-align:center}
-.sticky-ad-inner{display:inline-flex;align-items:center;gap:8px;background:var(--bg3);border:1px dashed var(--border2);border-radius:6px;padding:6px 16px;font-size:11px;color:var(--text3)}
-
-/* ── Misc ── */
-.divider{height:1px;background:var(--border);margin:32px 0}
-.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
-.empty-state-emoji{font-size:48px;margin-bottom:12px;display:block}
-.empty-state-text{font-size:14px}
-
-/* ── Admin Edit Mode ── */
-.edit-mode-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:150;background:rgba(245,158,11,0.1);border-top:1px solid rgba(245,158,11,0.3);padding:10px 24px;align-items:center;gap:12px;backdrop-filter:blur(8px)}
-.edit-mode-bar.show{display:flex}
-.edit-mode-label{font-size:12px;color:var(--admin-accent);font-weight:600}
-
-/* Responsive */
-@media(max-width:600px){
-  .cards-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
-  .admin-drawer{width:100%}
-  .detail-title{font-size:24px}
-  .content{padding:20px 16px}
-  .topbar{padding:0 14px}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Downloads Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { primary: '#4f46e5' } } } }
+    </script>
+    <!-- FontAwesome & SweetAlert2 & Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        body { transition: background-color 0.3s ease; }
+        .glass-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .dark .glass-card { background: rgba(31, 41, 55, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .loader { border-top-color: #4f46e5; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
-<body>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen">
 
-<!-- ───── AUTH SCREEN ───── -->
-<div id="auth-screen">
-  <div class="auth-box">
-    <div class="auth-logo">Hub<span>Zone</span></div>
-    <div class="auth-sub">ඔයාගේ content hub එකට welcome!</div>
-    <div class="auth-tabs">
-      <div class="auth-tab active" onclick="switchAuth('login')">Login</div>
-      <div class="auth-tab" onclick="switchAuth('register')">Register</div>
-    </div>
-    <div id="login-form">
-      <div class="field"><label>Email or Username</label><input type="text" id="l-id" placeholder="ඔයාගේ email හෝ username"></div>
-      <div class="field"><label>Password</label><input type="password" id="l-pw" placeholder="••••••••"></div>
-      <button class="btn-primary" onclick="doLogin()">Login →</button>
-    </div>
-    <div id="register-form" style="display:none">
-      <div class="field"><label>Email</label><input type="email" id="r-email" placeholder="you@email.com"></div>
-      <div class="field"><label>Username</label><input type="text" id="r-user" placeholder="username"></div>
-      <div class="field"><label>Password</label><input type="password" id="r-pw" placeholder="••••••••"></div>
-      <button class="btn-primary" onclick="doRegister()">Create Account →</button>
-    </div>
-    <div class="auth-msg" id="auth-msg"></div>
-  </div>
-</div>
-
-<!-- ───── MAIN SCREEN ───── -->
-<div id="main-screen">
-  <!-- Sticky ads -->
-  <div class="sticky-ad-bottom">
-    <div class="sticky-ad-inner">📢 Advertisement Space — Adsterra / Monetag</div>
-  </div>
-
-  <!-- Topbar -->
-  <div class="topbar">
-    <div class="topbar-logo">Hub<span>Zone</span></div>
-    <div class="search-wrap">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="search-input" placeholder="Search cards..." oninput="filterCards()">
-    </div>
-    <div class="topbar-right">
-      <div class="card-toggle" onclick="toggleCardMode()">
-        <div class="toggle-dot" id="mode-dot"></div>
-        <span id="mode-label" style="font-size:12px">Grid</span>
-      </div>
-      <div class="user-pill">
-        <div class="user-avatar" id="user-avatar">U</div>
-        <span id="user-name-display">User</span>
-        <span id="admin-badge-top" style="display:none" class="admin-badge">⚡ Admin</span>
-      </div>
-      <button class="btn-logout" onclick="doLogout()">Logout</button>
-    </div>
-  </div>
-
-  <!-- Content -->
-  <div class="content">
-    <!-- Cards Section -->
-    <div class="section-head">
-      <div class="section-title">Content Cards <span id="card-count"></span></div>
-    </div>
-    <div class="cards-grid" id="cards-grid"></div>
-
-    <div class="divider"></div>
-
-    <!-- Tools Section -->
-    <div class="section-head">
-      <div class="section-title">Tools <span>– Free to use</span></div>
-    </div>
-    <div class="tools-grid" id="tools-grid"></div>
-  </div>
-</div>
-
-<!-- ───── CARD DETAIL ───── -->
-<div id="card-detail">
-  <div class="detail-back">
-    <button class="btn-back" onclick="closeDetail()">← Back</button>
-    <span id="detail-breadcrumb" style="font-size:13px;color:var(--text2)"></span>
-  </div>
-  <div class="detail-content" id="detail-content"></div>
-</div>
-
-<!-- ───── AD OVERLAY ───── -->
-<div id="ad-overlay">
-  <div class="ad-box">
-    <div class="ad-sponsor">Sponsored Content</div>
-    <div class="ad-placeholder">
-      <!-- Adsterra / Monetag ad script goes here -->
-      <div>📢</div>
-      <div class="ad-placeholder-inner">Ad Space — Paste your ad script here</div>
-    </div>
-    <div class="ad-countdown" id="ad-count">5</div>
-    <div class="ad-countdown-label">seconds remaining</div>
-    <button class="ad-skip" id="ad-skip-btn" disabled onclick="closeAd()">✓ Continue</button>
-  </div>
-</div>
-
-<!-- ───── PASSWORD MODAL ───── -->
-<div id="pw-modal">
-  <div class="pw-box">
-    <span class="pw-emoji">🔒</span>
-    <div class="pw-title">Password Protected</div>
-    <div class="pw-sub">මේ card එකට access කරන්න password දාන්න</div>
-    <input type="password" class="pw-input" id="pw-input" placeholder="••••••" oninput="pwErr('')">
-    <div class="pw-err" id="pw-err"></div>
-    <button class="btn-primary" onclick="checkPassword()" style="width:auto;display:inline-block;padding:10px 32px">Unlock →</button>
-  </div>
-</div>
-
-<!-- ───── FEEDBACK MODAL ───── -->
-<div id="feedback-modal">
-  <div class="feedback-box">
-    <div class="feedback-title">💬 Send Feedback</div>
-    <div class="feedback-sub">ඔයාගේ අදහස් share කරන්න</div>
-    <textarea class="feedback-textarea" id="feedback-text" placeholder="ඔයාගේ message ලියන්න..."></textarea>
-    <div style="display:flex;gap:10px">
-      <button class="btn-admin btn-cancel" onclick="closeFeedback()">Cancel</button>
-      <button class="btn-admin btn-add" onclick="sendFeedback()">Send Message →</button>
-    </div>
-    <div class="auth-msg" id="fb-msg" style="display:none;margin-top:12px"></div>
-  </div>
-</div>
-
-<!-- ───── TOOL MODAL ───── -->
-<div id="tool-modal">
-  <div class="tool-modal-box" id="tool-modal-box">
-    <div class="tool-modal-head">
-      <span class="tool-modal-emoji" id="tool-modal-emoji">🔧</span>
-      <div>
-        <div class="tool-modal-title" id="tool-modal-title">Tool</div>
-        <div class="tool-modal-sub" id="tool-modal-sub">Tool description</div>
-      </div>
-      <button class="btn-close-modal" onclick="closeTool()">✕</button>
-    </div>
-    <div id="tool-modal-body"></div>
-  </div>
-</div>
-
-<!-- ───── ADMIN PANEL ───── -->
-<div id="admin-panel">
-  <div class="admin-drawer">
-    <div class="admin-head">⚡ Admin Panel</div>
-
-    <!-- Add Card -->
-    <div class="admin-section">
-      <div class="admin-section-title">Add / Edit Card</div>
-      <div class="admin-field">
-        <label>Card Name</label>
-        <input type="text" id="a-name" placeholder="e.g. Movie Pack">
-      </div>
-      <div class="admin-field">
-        <label>Description</label>
-        <textarea id="a-desc" placeholder="Short description..."></textarea>
-      </div>
-      <div class="admin-field">
-        <label>Emoji / Icon</label>
-        <input type="text" id="a-emoji" placeholder="e.g. 🎬" style="font-size:20px;text-align:center">
-        <div class="emoji-picker" id="emoji-picker"></div>
-      </div>
-      <div class="admin-field">
-        <label>Thumbnail URL (optional)</label>
-        <input type="text" id="a-thumb" placeholder="https://...">
-      </div>
-      <div class="admin-field">
-        <label>Main Link (Visit/Watch)</label>
-        <input type="text" id="a-link" placeholder="https://...">
-      </div>
-      <div class="admin-field">
-        <label>Download Link (optional)</label>
-        <input type="text" id="a-dl" placeholder="https://...">
-      </div>
-      <div class="admin-field">
-        <label>Category Tag</label>
-        <input type="text" id="a-tag" placeholder="e.g. Movie, App, Tool">
-      </div>
-      <div class="admin-field">
-        <label>Password (leave blank = no lock)</label>
-        <input type="password" id="a-pw" placeholder="Card password">
-      </div>
-      <div class="admin-field">
-        <label>Ad Timer (seconds before skip)</label>
-        <input type="number" id="a-timer" value="5" min="1" max="60">
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-        <button class="btn-admin btn-add" onclick="addCard()">+ Add Card</button>
-        <button class="btn-admin btn-cancel" id="cancel-edit-btn" style="display:none" onclick="cancelEdit()">Cancel Edit</button>
-        <button class="btn-admin btn-cancel" onclick="closeAdmin()">Close</button>
-      </div>
+    <!-- Loading Overlay -->
+    <div id="loading" class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex flex-col items-center justify-center">
+        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-16 w-16 mb-4"></div>
+        <h2 class="text-xl font-semibold animate__animated animate__pulse animate__infinite">Loading...</h2>
     </div>
 
-    <!-- Site Customize -->
-    <div class="admin-section">
-      <div class="admin-section-title">Site Customize</div>
-      <div class="admin-field">
-        <label>Site Name</label>
-        <input type="text" id="s-name" value="HubZone" oninput="previewSiteName()">
-      </div>
-      <div class="admin-field">
-        <label>Accent Color</label>
-        <input type="color" id="s-color" value="#7c6dfa" oninput="previewColor()">
-      </div>
-      <div class="admin-field">
-        <label>Accent Color 2 (green)</label>
-        <input type="color" id="s-color2" value="#06d6a0" oninput="previewColor2()">
-      </div>
-      <button class="btn-admin btn-add" onclick="saveSiteSettings()" style="margin-top:4px">💾 Save Settings</button>
-    </div>
-
-    <!-- Card List -->
-    <div class="admin-section">
-      <div class="admin-section-title">Manage Cards</div>
-      <div class="admin-card-list" id="admin-card-list"></div>
-    </div>
-
-    <!-- Popup Ad Toggle -->
-    <div class="admin-section">
-      <div class="admin-section-title">Ads</div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <button class="btn-admin btn-cancel" onclick="togglePopupAd()" id="popup-ad-btn">📢 Show Popup Ad</button>
-        <div style="font-size:12px;color:var(--text3);line-height:1.6">
-          Adsterra / Monetag script paste කරන්න #ad-placeholder div එකට. Auto popup, sticky bottom bar දෙකම active.
+    <!-- Login/Register View -->
+    <div id="auth-view" class="hidden min-h-screen flex items-center justify-center px-4">
+        <div class="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 glass-card animate__animated animate__zoomIn">
+            <div class="text-center mb-8">
+                <i class="fa-solid fa-crown text-5xl text-primary mb-3"></i>
+                <h2 class="text-3xl font-bold" id="auth-title">Welcome Back</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Sign in to access premium content</p>
+            </div>
+            <form id="auth-form" onsubmit="handleAuth(event)">
+                <input type="email" id="auth-email" placeholder="Email Address" class="hidden w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-gray-700 border-none mb-4 focus:ring-2 focus:ring-primary outline-none transition">
+                <input type="text" id="auth-username" placeholder="Username" required class="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-gray-700 border-none mb-4 focus:ring-2 focus:ring-primary outline-none transition">
+                <input type="password" id="auth-password" placeholder="Password" required class="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-gray-700 border-none mb-6 focus:ring-2 focus:ring-primary outline-none transition">
+                <button type="submit" class="w-full bg-primary hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition transform hover:scale-105 shadow-lg">Submit</button>
+            </form>
+            <p class="text-center mt-6 text-sm">
+                <span id="auth-switch-text">Don't have an account?</span> 
+                <button onclick="toggleAuth()" class="text-primary font-semibold hover:underline" id="auth-switch-btn">Register here</button>
+            </p>
         </div>
-      </div>
     </div>
-  </div>
-  <div style="position:absolute;inset:0;z-index:-1" onclick="closeAdmin()"></div>
-</div>
 
-<!-- ───── POPUP AD ───── -->
-<div id="popup-ad">
-  <button class="popup-close" onclick="document.getElementById('popup-ad').style.display='none'">✕</button>
-  <div class="popup-label">Advertisement</div>
-  <div class="popup-ad-space">📢 Ad Space</div>
-</div>
+    <!-- Main Dashboard View -->
+    <div id="main-view" class="hidden">
+        <!-- Navbar -->
+        <nav class="sticky top-0 z-40 glass-card bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-crown text-2xl text-primary"></i>
+                    <span class="font-bold text-xl tracking-wider">PREMIUM HUB</span>
+                </div>
+                <div class="flex-1 max-w-md mx-8 hidden md:block">
+                    <div class="relative">
+                        <i class="fa-solid fa-search absolute left-3 top-3 text-gray-400"></i>
+                        <input type="text" id="search-input" oninput="filterCards()" placeholder="Search content..." class="w-full pl-10 pr-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800 border-none focus:ring-2 focus:ring-primary outline-none transition">
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                        <i class="fa-solid fa-moon text-xl" id="dark-icon"></i>
+                    </button>
+                    <button id="admin-btn" onclick="openAdmin()" class="hidden bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg hover:scale-105 transition"><i class="fa-solid fa-gear"></i> Admin</button>
+                    <button onclick="logout()" class="text-gray-500 hover:text-red-500 transition"><i class="fa-solid fa-arrow-right-from-bracket text-xl"></i></button>
+                </div>
+            </div>
+        </nav>
 
-<!-- ───── FABs ───── -->
-<div class="fab-group">
-  <button class="fab fab-feedback" title="Send Feedback" onclick="openFeedback()">💬</button>
-  <button class="fab fab-admin" id="fab-admin" style="display:none" title="Admin Panel" onclick="openAdmin()">⚡</button>
-</div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Cards Grid -->
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-primary pl-3"><i class="fa-solid fa-fire text-orange-500 mr-2"></i> Premium Content</h3>
+            <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+                <!-- Cards render here via JS -->
+            </div>
 
-<!-- ═══════════ SCRIPT ═══════════ -->
-<script>
-const API = "https://script.google.com/macros/s/AKfycbyA_QbyjJU1koCv_DCHp3URURGPA19Kt2FC9LV8UlBLmO5fxOqkr21aMPOhRgSysLyDgA/exec";
+            <!-- Extra Tools Section -->
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-green-500 pl-3"><i class="fa-solid fa-toolbox text-gray-500 mr-2"></i> Essential Tools</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div class="glass-card p-6 rounded-2xl shadow-lg hover:-translate-y-2 transition duration-300 flex items-center gap-4 cursor-pointer" onclick="window.open('https://tinywow.com/pdf', '_blank')">
+                    <div class="bg-red-100 dark:bg-red-900/30 p-4 rounded-full text-red-500 text-2xl"><i class="fa-solid fa-file-pdf"></i></div>
+                    <div><h4 class="font-bold text-lg">PDF Editor Tools</h4><p class="text-sm text-gray-500">Edit & Convert PDFs Free</p></div>
+                </div>
+                <div class="glass-card p-6 rounded-2xl shadow-lg hover:-translate-y-2 transition duration-300 flex items-center gap-4 cursor-pointer" onclick="window.open('https://www.remove.bg/', '_blank')">
+                    <div class="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full text-blue-500 text-2xl"><i class="fa-solid fa-image"></i></div>
+                    <div><h4 class="font-bold text-lg">BG Remover</h4><p class="text-sm text-gray-500">Remove Photo Backgrounds</p></div>
+                </div>
+                <div class="glass-card p-6 rounded-2xl shadow-lg hover:-translate-y-2 transition duration-300 flex items-center gap-4 cursor-pointer" onclick="window.open('https://snaptik.app/', '_blank')">
+                    <div class="bg-black p-4 rounded-full text-white text-2xl"><i class="fa-brands fa-tiktok"></i></div>
+                    <div><h4 class="font-bold text-lg">TikTok Downloader</h4><p class="text-sm text-gray-500">No Watermark Downloads</p></div>
+                </div>
+            </div>
 
-// ── State ──
-let currentUser = null;
-let isAdmin = false;
-let cards = [];
-let listMode = false;
-let adCallback = null;
-let adTimer = 5;
-let adInterval = null;
-let pendingCard = null;
-let editingCardId = null;
-
-// ── Site Settings ──
-let siteSettings = JSON.parse(localStorage.getItem('hubzone_settings') || '{"name":"HubZone","accent":"#7c6dfa","accent2":"#06d6a0"}');
-
-// ── Tools ──
-const TOOLS = [
-  {id:'pdf',emoji:'📄',name:'PDF Editor',desc:'PDF files merge, split, rotate, annotate'},
-  {id:'bg',emoji:'🖼️',name:'Background Remover',desc:'Photo background automatically remove'},
-  {id:'tiktok',emoji:'🎵',name:'TikTok Downloader',desc:'TikTok videos watermark-free download'},
-  {id:'imgcomp',emoji:'🗜️',name:'Image Compressor',desc:'Images compress without quality loss'},
-  {id:'qr',emoji:'📱',name:'QR Generator',desc:'Custom QR codes generate instantly'},
-  {id:'color',emoji:'🎨',name:'Color Picker',desc:'Colors pick, convert HEX/RGB/HSL'},
-];
-
-// ── Emoji Suggestions ──
-const EMOJIS = ['🎬','🎵','📱','💻','🎮','📚','🎨','🔥','⚡','🌟','💎','🚀','🎯','🏆','📦','🛠️','🎁','🌈','💡','🔑','🎤','📷','🎞️','🌙','☀️','❤️','🦁','🐉','🌊','🎪'];
-
-// ═══ Init ═══
-window.onload = () => {
-  applySettings();
-  renderEmojis();
-  renderTools();
-
-  const saved = localStorage.getItem('hubzone_user');
-  if (saved) {
-    currentUser = JSON.parse(saved);
-    isAdmin = currentUser.role === 'admin';
-    showMain();
-  }
-};
-
-function applySettings() {
-  document.documentElement.style.setProperty('--accent', siteSettings.accent);
-  document.documentElement.style.setProperty('--accent2', siteSettings.accent2 || '#a78bfa');
-  document.documentElement.style.setProperty('--accent3', siteSettings.accent3 || '#06d6a0');
-  document.querySelectorAll('.topbar-logo,.auth-logo').forEach(el => {
-    el.innerHTML = siteSettings.name.slice(0,-1) + `<span>${siteSettings.name.slice(-1)}</span>`;
-  });
-  document.title = siteSettings.name + ' — Your Content Hub';
-}
-
-// ═══ Auth ═══
-function switchAuth(tab) {
-  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='register')));
-  document.getElementById('login-form').style.display = tab==='login' ? 'block' : 'none';
-  document.getElementById('register-form').style.display = tab==='register' ? 'block' : 'none';
-  showAuthMsg('','');
-}
-
-function showAuthMsg(msg, type) {
-  const el = document.getElementById('auth-msg');
-  el.textContent = msg;
-  el.className = 'auth-msg ' + type;
-  el.style.display = msg ? 'block' : 'none';
-}
-
-async function doLogin() {
-  const id = document.getElementById('l-id').value.trim();
-  const pw = document.getElementById('l-pw').value;
-  if (!id || !pw) return showAuthMsg('ක්ෂේත්‍ර ඔක්කොම fill කරන්න', 'err');
-  showAuthMsg('Logging in...', '');
-  try {
-    const res = await apiCall({action:'login', identifier:id, password:pw});
-    if (res.success) {
-      currentUser = {id: res.id, username: res.username, role: res.role};
-      isAdmin = res.role === 'admin';
-      localStorage.setItem('hubzone_user', JSON.stringify(currentUser));
-      showMain();
-    } else showAuthMsg(res.message, 'err');
-  } catch { showAuthMsg('Connection error. Try again.', 'err'); }
-}
-
-async function doRegister() {
-  const email = document.getElementById('r-email').value.trim();
-  const user = document.getElementById('r-user').value.trim();
-  const pw = document.getElementById('r-pw').value;
-  if (!email || !user || !pw) return showAuthMsg('ක්ෂේත්‍ර ඔක්කොම fill කරන්න', 'err');
-  showAuthMsg('Registering...', '');
-  try {
-    const res = await apiCall({action:'register', email, username:user, password:pw});
-    if (res.success) showAuthMsg('✓ Registered! Login කරන්න.', 'ok');
-    else showAuthMsg(res.message, 'err');
-  } catch { showAuthMsg('Connection error. Try again.', 'err'); }
-}
-
-function doLogout() {
-  localStorage.removeItem('hubzone_user');
-  currentUser = null; isAdmin = false;
-  document.getElementById('main-screen').style.display = 'none';
-  document.getElementById('auth-screen').style.display = 'flex';
-}
-
-function showMain() {
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('main-screen').style.display = 'block';
-  document.getElementById('user-name-display').textContent = currentUser.username;
-  document.getElementById('user-avatar').textContent = currentUser.username[0].toUpperCase();
-  if (isAdmin) {
-    document.getElementById('admin-badge-top').style.display = 'inline-flex';
-    document.getElementById('fab-admin').style.display = 'flex';
-  }
-  loadCards();
-  renderTools();
-  // Show popup ad after 3s
-  setTimeout(showPopupAd, 3000);
-}
-
-// ═══ API Call ═══
-async function apiCall(data) {
-  const params = new URLSearchParams(data);
-  const res = await fetch(API + '?' + params.toString(), {method:'GET', redirect:'follow'});
-  const text = await res.text();
-  try { return JSON.parse(text); }
-  catch { throw new Error('API response error: ' + text.slice(0,100)); }
-}
-
-// ═══ Cards ═══
-function loadCards() {
-  const saved = localStorage.getItem('hubzone_cards');
-  cards = saved ? JSON.parse(saved) : [];
-  renderCards();
-}
-
-function saveCards() {
-  localStorage.setItem('hubzone_cards', JSON.stringify(cards));
-}
-
-function renderCards() {
-  const grid = document.getElementById('cards-grid');
-  const q = document.getElementById('search-input').value.toLowerCase();
-  const filtered = cards.filter(c =>
-    c.name.toLowerCase().includes(q) || (c.desc||'').toLowerCase().includes(q) || (c.tag||'').toLowerCase().includes(q)
-  );
-  document.getElementById('card-count').textContent = `(${filtered.length})`;
-
-  if (!filtered.length) {
-    grid.innerHTML = '<div class="empty-state"><span class="empty-state-emoji">📭</span><div class="empty-state-text">No cards found</div></div>';
-    return;
-  }
-
-  grid.innerHTML = filtered.map((c,i) => `
-    <div class="card" style="animation-delay:${i*0.05}s" onclick="openCard('${c.id}')">
-      <div class="card-thumb">
-        ${c.thumb ? `<img src="${c.thumb}" onerror="this.style.display='none'">` : ''}
-        <div class="card-thumb-emoji" ${c.thumb ? 'style="display:none"' : ''}>${c.emoji||'📦'}</div>
-        ${c.password ? '<div class="card-locked">🔒 Locked</div>' : ''}
-      </div>
-      <div class="card-body">
-        <div class="card-name">${c.name}</div>
-        <div class="card-desc">${c.desc||''}</div>
-        ${c.tag ? `<div class="card-tag"># ${c.tag}</div>` : ''}
-      </div>
-    </div>
-  `).join('');
-}
-
-function filterCards() { renderCards(); }
-
-function openCard(id) {
-  const card = cards.find(c => c.id === id);
-  if (!card) return;
-  pendingCard = card;
-  if (card.password) {
-    document.getElementById('pw-input').value = '';
-    document.getElementById('pw-modal').classList.add('show');
-  } else {
-    showCardDetail(card);
-  }
-}
-
-function checkPassword() {
-  const val = document.getElementById('pw-input').value;
-  if (val === pendingCard.password) {
-    document.getElementById('pw-modal').classList.remove('show');
-    showCardDetail(pendingCard);
-  } else {
-    pwErr('❌ Wrong password!');
-  }
-}
-
-function pwErr(msg) { document.getElementById('pw-err').textContent = msg; }
-
-function showCardDetail(card) {
-  const det = document.getElementById('card-detail');
-  document.getElementById('detail-breadcrumb').textContent = card.name;
-  document.getElementById('detail-content').innerHTML = `
-    <span class="detail-emoji">${card.emoji||'📦'}</span>
-    <div class="detail-title">${card.name}</div>
-    <div class="detail-desc">${card.desc||''}</div>
-    ${card.thumb ? `<div class="detail-thumb"><img src="${card.thumb}" onerror="this.parentNode.style.display='none'"></div>` : ''}
-    <div class="detail-links">
-      ${card.link ? `
-        <div class="detail-link-card">
-          <div style="font-size:28px">🔗</div>
-          <div class="detail-link-info">
-            <div class="detail-link-label">Main Link</div>
-            <div class="detail-link-name">${card.link}</div>
-          </div>
+            <!-- Feedback Section -->
+            <div class="glass-card rounded-2xl p-8 max-w-2xl mx-auto shadow-lg mb-8">
+                <h3 class="text-2xl font-bold mb-4 text-center"><i class="fa-solid fa-comment-dots text-primary mr-2"></i> Leave Feedback</h3>
+                <textarea id="feedback-msg" rows="3" class="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-gray-800 border-none mb-4 focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="What tools/content do you want next?"></textarea>
+                <button onclick="submitFeedback()" class="w-full bg-gray-800 dark:bg-gray-100 dark:text-gray-900 text-white font-bold py-3 rounded-lg transition hover:bg-gray-700">Submit Feedback</button>
+            </div>
         </div>
-        <button class="btn-visit" onclick="playAdThen(()=>openLink('${card.link}'), ${card.timer||5})">
-          ▶ Visit / Watch
-        </button>
-      ` : ''}
-      ${card.dl ? `
-        <button class="btn-download" onclick="playAdThen(()=>openLink('${card.dl}'), ${card.timer||5})">
-          ⬇ Download
-        </button>
-      ` : ''}
     </div>
-  `;
-  det.style.display = 'block';
-  window.scrollTo(0,0);
-}
 
-function openLink(url) {
-  window.open(url, '_blank');
-}
+    <!-- Admin Modal -->
+    <div id="admin-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 animate__animated animate__fadeInDown">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-primary"><i class="fa-solid fa-gear"></i> Admin Dashboard</h2>
+                <button onclick="closeAdmin()" class="text-gray-500 hover:text-red-500 text-2xl"><i class="fa-solid fa-times"></i></button>
+            </div>
+            
+            <!-- Ad Settings -->
+            <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-xl mb-6">
+                <h3 class="font-bold mb-3"><i class="fa-solid fa-bullhorn text-yellow-500"></i> Adsterra / Monetag Settings</h3>
+                <div class="grid grid-cols-1 gap-4">
+                    <input type="text" id="ad-direct" placeholder="Direct Ad Link URL (e.g. https://adsterra...)" class="w-full px-4 py-2 rounded border-none bg-white dark:bg-gray-800 outline-none">
+                    <input type="text" id="ad-popunder" placeholder="Popunder Script Tag (Optional)" class="w-full px-4 py-2 rounded border-none bg-white dark:bg-gray-800 outline-none">
+                    <input type="number" id="ad-wait" placeholder="Wait Time (Seconds)" class="w-full px-4 py-2 rounded border-none bg-white dark:bg-gray-800 outline-none">
+                    <button onclick="saveAdSettings()" class="bg-green-500 text-white font-bold py-2 rounded hover:bg-green-600 transition">Save Ad Settings</button>
+                </div>
+            </div>
 
-function closeDetail() {
-  document.getElementById('card-detail').style.display = 'none';
-}
-
-// ═══ Ad System ═══
-function playAdThen(callback, seconds) {
-  adCallback = callback;
-  adTimer = seconds || 5;
-  const countEl = document.getElementById('ad-count');
-  const skipBtn = document.getElementById('ad-skip-btn');
-  countEl.textContent = adTimer;
-  skipBtn.disabled = true;
-  skipBtn.textContent = '⏳ Wait...';
-  document.getElementById('ad-overlay').classList.add('show');
-
-  clearInterval(adInterval);
-  adInterval = setInterval(() => {
-    adTimer--;
-    countEl.textContent = adTimer;
-    if (adTimer <= 0) {
-      clearInterval(adInterval);
-      skipBtn.disabled = false;
-      skipBtn.textContent = '✓ Continue';
-    }
-  }, 1000);
-}
-
-function closeAd() {
-  document.getElementById('ad-overlay').classList.remove('show');
-  clearInterval(adInterval);
-  if (adCallback) { adCallback(); adCallback = null; }
-}
-
-// ═══ Card Mode Toggle ═══
-function toggleCardMode() {
-  listMode = !listMode;
-  document.getElementById('cards-grid').classList.toggle('list-mode', listMode);
-  document.getElementById('mode-dot').classList.toggle('on', listMode);
-  document.getElementById('mode-label').textContent = listMode ? 'List' : 'Grid';
-}
-
-// ═══ Admin ═══
-function openAdmin() { document.getElementById('admin-panel').style.display = 'block'; renderAdminCards(); }
-function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; cancelEdit(); }
-
-function renderEmojis() {
-  document.getElementById('emoji-picker').innerHTML = EMOJIS.map(e =>
-    `<div class="emoji-opt" onclick="selectEmoji('${e}')">${e}</div>`
-  ).join('');
-}
-
-function selectEmoji(e) {
-  document.getElementById('a-emoji').value = e;
-  document.querySelectorAll('.emoji-opt').forEach(el => el.classList.toggle('selected', el.textContent === e));
-}
-
-function addCard() {
-  const name = document.getElementById('a-name').value.trim();
-  if (!name) return alert('Card name is required!');
-  const card = {
-    id: editingCardId || Date.now().toString(),
-    name,
-    desc: document.getElementById('a-desc').value.trim(),
-    emoji: document.getElementById('a-emoji').value || '📦',
-    thumb: document.getElementById('a-thumb').value.trim(),
-    link: document.getElementById('a-link').value.trim(),
-    dl: document.getElementById('a-dl').value.trim(),
-    tag: document.getElementById('a-tag').value.trim(),
-    password: document.getElementById('a-pw').value,
-    timer: parseInt(document.getElementById('a-timer').value) || 5,
-  };
-  if (editingCardId) {
-    const idx = cards.findIndex(c => c.id === editingCardId);
-    if (idx !== -1) cards[idx] = card;
-  } else {
-    cards.unshift(card);
-  }
-  saveCards();
-  renderCards();
-  renderAdminCards();
-  clearCardForm();
-}
-
-function clearCardForm() {
-  ['a-name','a-desc','a-emoji','a-thumb','a-link','a-dl','a-tag','a-pw'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('a-timer').value = 5;
-  document.querySelectorAll('.emoji-opt').forEach(el => el.classList.remove('selected'));
-}
-
-function editCard(id) {
-  const card = cards.find(c => c.id === id);
-  if (!card) return;
-  editingCardId = id;
-  document.getElementById('a-name').value = card.name;
-  document.getElementById('a-desc').value = card.desc || '';
-  document.getElementById('a-emoji').value = card.emoji || '';
-  document.getElementById('a-thumb').value = card.thumb || '';
-  document.getElementById('a-link').value = card.link || '';
-  document.getElementById('a-dl').value = card.dl || '';
-  document.getElementById('a-tag').value = card.tag || '';
-  document.getElementById('a-pw').value = card.password || '';
-  document.getElementById('a-timer').value = card.timer || 5;
-  document.getElementById('cancel-edit-btn').style.display = 'inline-block';
-  document.querySelector('.btn-add').textContent = '💾 Save Changes';
-  document.getElementById('a-name').focus();
-  document.querySelector('.admin-drawer').scrollTop = 0;
-}
-
-function cancelEdit() {
-  editingCardId = null;
-  clearCardForm();
-  document.getElementById('cancel-edit-btn').style.display = 'none';
-  document.querySelector('.btn-add').textContent = '+ Add Card';
-}
-
-function deleteCard(id) {
-  if (!confirm('Delete this card?')) return;
-  cards = cards.filter(c => c.id !== id);
-  saveCards();
-  renderCards();
-  renderAdminCards();
-}
-
-function renderAdminCards() {
-  document.getElementById('admin-card-list').innerHTML = cards.length ? cards.map(c => `
-    <div class="admin-card-item">
-      <div class="admin-card-emoji">${c.emoji||'📦'}</div>
-      <div class="admin-card-info">
-        <div class="admin-card-name">${c.name}</div>
-        <div class="admin-card-meta">${c.tag||'No tag'} • ${c.password ? '🔒 Locked' : 'Open'} • ⏱ ${c.timer||5}s</div>
-      </div>
-      <div class="admin-card-actions">
-        <button class="btn-icon" onclick="editCard('${c.id}')" title="Edit">✏️</button>
-        <button class="btn-icon del" onclick="deleteCard('${c.id}')" title="Delete">🗑</button>
-      </div>
-    </div>
-  `).join('') : '<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">No cards yet</div>';
-}
-
-// ═══ Site Settings ═══
-function previewSiteName() {
-  const val = document.getElementById('s-name').value || 'HubZone';
-  siteSettings.name = val;
-  applySettings();
-}
-function previewColor() {
-  const val = document.getElementById('s-color').value;
-  siteSettings.accent = val;
-  document.documentElement.style.setProperty('--accent', val);
-}
-function previewColor2() {
-  const val = document.getElementById('s-color2').value;
-  siteSettings.accent3 = val;
-  document.documentElement.style.setProperty('--accent3', val);
-}
-function saveSiteSettings() {
-  siteSettings.name = document.getElementById('s-name').value || 'HubZone';
-  siteSettings.accent = document.getElementById('s-color').value;
-  siteSettings.accent3 = document.getElementById('s-color2').value;
-  localStorage.setItem('hubzone_settings', JSON.stringify(siteSettings));
-  applySettings();
-  alert('✓ Settings saved!');
-}
-
-// ═══ Feedback ═══
-function openFeedback() { document.getElementById('feedback-modal').classList.add('show'); }
-function closeFeedback() { document.getElementById('feedback-modal').classList.remove('show'); }
-
-async function sendFeedback() {
-  const msg = document.getElementById('feedback-text').value.trim();
-  if (!msg) return;
-  try {
-    const res = await apiCall({action:'feedback', username: currentUser?.username||'Guest', message: msg});
-    const el = document.getElementById('fb-msg');
-    el.textContent = res.success ? '✓ Thanks for your feedback!' : 'Error: ' + res.message;
-    el.className = 'auth-msg ' + (res.success ? 'ok' : 'err');
-    el.style.display = 'block';
-    if (res.success) { document.getElementById('feedback-text').value = ''; setTimeout(closeFeedback, 2000); }
-  } catch { }
-}
-
-// ═══ Popup Ad ═══
-function showPopupAd() {
-  document.getElementById('popup-ad').style.display = 'block';
-}
-function togglePopupAd() {
-  const ad = document.getElementById('popup-ad');
-  ad.style.display = ad.style.display === 'none' ? 'block' : 'none';
-}
-
-// ═══ Tools ═══
-function renderTools() {
-  document.getElementById('tools-grid').innerHTML = TOOLS.map((t,i) => `
-    <div class="tool-card" style="animation-delay:${i*0.06}s" onclick="openTool('${t.id}')">
-      <span class="tool-emoji">${t.emoji}</span>
-      <div class="tool-name">${t.name}</div>
-      <div class="tool-desc">${t.desc}</div>
-    </div>
-  `).join('');
-}
-
-function openTool(id) {
-  const tool = TOOLS.find(t => t.id === id);
-  if (!tool) return;
-  document.getElementById('tool-modal-emoji').textContent = tool.emoji;
-  document.getElementById('tool-modal-title').textContent = tool.name;
-  document.getElementById('tool-modal-sub').textContent = tool.desc;
-  document.getElementById('tool-modal-body').innerHTML = getToolUI(id);
-  document.getElementById('tool-modal').classList.add('show');
-}
-
-function closeTool() { document.getElementById('tool-modal').classList.remove('show'); }
-
-function getToolUI(id) {
-  if (id === 'tiktok') return `
-    <div class="tiktok-input-wrap">
-      <input type="text" id="tt-url" placeholder="TikTok video URL paste කරන්න...">
-      <button class="btn-fetch" onclick="downloadTikTok()">Fetch</button>
-    </div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:12px">⚠️ Backend API required for actual watermark removal. This sends to a public TikTok downloader API.</div>
-    <div class="progress-bar" id="tt-progress"><div class="progress-fill" id="tt-fill"></div></div>
-    <div class="tool-result" id="tt-result"></div>
-  `;
-  if (id === 'bg') return `
-    <div class="drop-zone" onclick="document.getElementById('bg-file').click()" id="bg-drop">
-      <div style="font-size:36px">🖼️</div>
-      <div class="drop-zone-text">Click to upload image</div>
-      <div class="drop-zone-hint">JPG, PNG up to 5MB</div>
-      <input type="file" id="bg-file" accept="image/*" style="display:none" onchange="removeBG(this)">
-    </div>
-    <div class="tool-result" id="bg-result"></div>
-    <div style="font-size:12px;color:var(--text3);margin-top:8px">Uses remove.bg API. Set your API key in code.</div>
-  `;
-  if (id === 'pdf') return `
-    <div class="drop-zone" onclick="document.getElementById('pdf-file').click()">
-      <div style="font-size:36px">📄</div>
-      <div class="drop-zone-text">Click to upload PDF</div>
-      <div class="drop-zone-hint">PDF files only</div>
-      <input type="file" id="pdf-file" accept=".pdf" style="display:none" onchange="handlePDF(this)">
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-      <button class="btn-fetch" onclick="alert('PDF merge: Select multiple PDFs and they will be merged.')">Merge</button>
-      <button class="btn-fetch" style="background:var(--accent3);color:#0a2e24" onclick="alert('For advanced PDF editing, integrate PDF.js or iLovePDF API.')">Split</button>
-    </div>
-    <div class="tool-result" id="pdf-result"></div>
-  `;
-  if (id === 'qr') return `
-    <div class="admin-field">
-      <label>Text or URL</label>
-      <input type="text" id="qr-text" placeholder="https://... or any text" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;font-family:var(--font-body);outline:none;width:100%">
-    </div>
-    <button class="btn-fetch" onclick="generateQR()">Generate QR</button>
-    <div class="tool-result" id="qr-result" style="text-align:center"></div>
-  `;
-  if (id === 'color') return `
-    <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
-      <input type="color" id="cp-color" value="#7c6dfa" oninput="updateColor()" style="width:60px;height:60px;border:none;background:none;cursor:pointer;border-radius:8px">
-      <div id="cp-values" style="font-size:13px;color:var(--text2);line-height:2;font-family:var(--font-mono)"></div>
-    </div>
-    <div id="cp-swatch" style="width:100%;height:80px;border-radius:12px;background:#7c6dfa;transition:background .2s;border:1px solid var(--border)"></div>
-    <script>updateColor();<\/script>
-  `;
-  if (id === 'imgcomp') return `
-    <div class="drop-zone" onclick="document.getElementById('img-file').click()">
-      <div style="font-size:36px">🗜️</div>
-      <div class="drop-zone-text">Click to upload image</div>
-      <div class="drop-zone-hint">JPG, PNG, WebP</div>
-      <input type="file" id="img-file" accept="image/*" style="display:none" onchange="compressImage(this)">
-    </div>
-    <div class="tool-result" id="img-result"></div>
-  `;
-  return '<div style="color:var(--text2);font-size:14px">Tool UI coming soon.</div>';
-}
-
-// ── Tool Functions ──
-function downloadTikTok() {
-  const url = document.getElementById('tt-url').value.trim();
-  if (!url) return alert('URL paste කරන්න');
-  const fill = document.getElementById('tt-fill');
-  const bar = document.getElementById('tt-progress');
-  const result = document.getElementById('tt-result');
-  bar.classList.add('show'); fill.style.width = '0%';
-  let w = 0;
-  const iv = setInterval(() => { w = Math.min(w + Math.random()*15, 90); fill.style.width = w + '%'; }, 200);
-  // Use tikwm API (free public)
-  fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`)
-    .then(r => r.json())
-    .then(d => {
-      clearInterval(iv); fill.style.width = '100%';
-      if (d.code === 0) {
-        result.classList.add('show');
-        result.innerHTML = `
-          <div style="font-size:13px;color:var(--text2);margin-bottom:10px">✓ Video found: <strong style="color:var(--text)">${d.data.title||'TikTok Video'}</strong></div>
-          <a href="${d.data.play}" target="_blank" download style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--accent3);border-radius:50px;color:#0a2e24;font-weight:700;font-size:13px;text-decoration:none">⬇ Download (No Watermark)</a>
-        `;
-      } else {
-        result.classList.add('show');
-        result.innerHTML = `<div style="color:#f87171;font-size:13px">❌ Video fetch failed. URL check කරන්න.</div>`;
-      }
-    })
-    .catch(() => {
-      clearInterval(iv);
-      result.classList.add('show');
-      result.innerHTML = `<div style="color:#f87171;font-size:13px">❌ Network error.</div>`;
-    });
-}
-
-function removeBG(input) {
-  if (!input.files[0]) return;
-  const result = document.getElementById('bg-result');
-  result.classList.add('show');
-  result.innerHTML = `<div style="color:var(--text2);font-size:13px">⚙️ Processing... (remove.bg API key needed for production)</div>`;
-  const reader = new FileReader();
-  reader.onload = e => {
-    result.innerHTML = `
-      <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Original preview:</div>
-      <img src="${e.target.result}" style="max-width:100%;border-radius:8px;border:1px solid var(--border)">
-      <div style="font-size:12px;color:var(--text3);margin-top:8px">Production use: <a href="https://www.remove.bg/api" target="_blank" style="color:var(--accent2)">remove.bg API</a> integrate කරන්න.</div>
-    `;
-  };
-  reader.readAsDataURL(input.files[0]);
-}
-
-function handlePDF(input) {
-  if (!input.files[0]) return;
-  const result = document.getElementById('pdf-result');
-  result.classList.add('show');
-  result.innerHTML = `<div style="color:var(--text2);font-size:13px">📄 File: <strong>${input.files[0].name}</strong> (${(input.files[0].size/1024).toFixed(1)} KB)<br><span style="font-size:12px;color:var(--text3)">Advanced PDF editing: PDF.js library integrate කරන්න.</span></div>`;
-}
-
-function generateQR() {
-  const text = document.getElementById('qr-text').value.trim();
-  if (!text) return;
-  const result = document.getElementById('qr-result');
-  result.classList.add('show');
-  const url = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}&bgcolor=1e1e2e&color=e8e8f0`;
-  result.innerHTML = `
-    <img src="${url}" style="border-radius:8px;margin-top:8px;width:200px;height:200px">
-    <br><a href="${url}" download="qr.png" style="display:inline-block;margin-top:10px;font-size:13px;color:var(--accent2)">⬇ Download QR</a>
-  `;
-}
-
-function updateColor() {
-  const c = document.getElementById('cp-color').value;
-  document.getElementById('cp-swatch').style.background = c;
-  const r=parseInt(c.slice(1,3),16), g=parseInt(c.slice(3,5),16), b=parseInt(c.slice(5,7),16);
-  const h=Math.max(r,g,b), l=Math.min(r,g,b), ll=Math.round((h+l)/5.1), s=h===l?0:Math.round((h-l)*100/(100-Math.abs(2*ll-100)));
-  document.getElementById('cp-values').innerHTML = `HEX: <strong style="color:var(--text)">${c.toUpperCase()}</strong><br>RGB: <strong style="color:var(--text)">rgb(${r}, ${g}, ${b})</strong><br>HSL: <strong style="color:var(--text)">hsl(${Math.round((r>g&&r>b?(g-b)/(h-l):g>b?(b-r)/(h-l)+2:(r-g)/(h-l)+4)*60+360)%360}, ${s}%, ${ll}%)</strong>`;
-}
-
-function compressImage(input) {
-  if (!input.files[0]) return;
-  const result = document.getElementById('img-result');
-  const file = input.files[0];
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const img = new Image();
-  img.onload = () => {
-    canvas.width = img.width; canvas.height = img.height;
-    ctx.drawImage(img, 0, 0);
-    canvas.toBlob(blob => {
-      const saved = ((file.size - blob.size)/file.size*100).toFixed(1);
-      const url = URL.createObjectURL(blob);
-      result.classList.add('show');
-      result.innerHTML = `
-        <div style="font-size:13px;color:var(--text2)">
-          Original: ${(file.size/1024).toFixed(1)} KB → Compressed: ${(blob.size/1024).toFixed(1)} KB
-          <strong style="color:var(--accent3)"> (${saved}% saved)</strong>
+            <!-- Add Card Form -->
+            <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-xl">
+                <h3 class="font-bold mb-3"><i class="fa-solid fa-plus-circle text-blue-500"></i> Add New Content Card</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <input type="text" id="card-title" placeholder="Title" class="w-full px-4 py-2 rounded border-none bg-white dark:bg-gray-800 outline-none">
+                    <input type="text" id="card-emoji" placeholder="Emoji (e.g. 🎮)" class="w-full px-4 py-2 rounded border-none bg-white dark:bg-gray-800 outline-none">
+                    <input type="text" id="card-thumb" placeholder="Thumbnail Image URL" class="w-full px-4 py-2 rounded border-none bg-white dark:bg-gray-800 outline-none md:col-span-2">
+                    <textarea id="card-desc" placeholder="Description" class="w-full px-4 py-2 rounded border-none bg-white dark:bg-gray-800 outline-none md:col-span-2"></textarea>
+                    <input type="text" id="card-link" placeholder="Download/Action Link" class="w-full px-4 py-2 rounded border-none bg-white dark:bg-gray-800 outline-none md:col-span-2">
+                    
+                    <div class="flex items-center gap-2 md:col-span-2">
+                        <input type="checkbox" id="card-ispass" onchange="document.getElementById('card-pass').classList.toggle('hidden')" class="w-5 h-5 rounded">
+                        <label>Password Protected?</label>
+                    </div>
+                    <input type="text" id="card-pass" placeholder="Enter Password" class="hidden w-full px-4 py-2 rounded border-none bg-white dark:bg-gray-800 outline-none md:col-span-2">
+                </div>
+                <button onclick="saveNewCard()" class="w-full bg-primary text-white font-bold py-3 rounded hover:bg-indigo-600 transition shadow-lg">Publish Card</button>
+            </div>
         </div>
-        <a href="${url}" download="compressed.jpg" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--accent3);border-radius:50px;color:#0a2e24;font-weight:700;font-size:13px;text-decoration:none;margin-top:10px">⬇ Download Compressed</a>
-      `;
-    }, 'image/jpeg', 0.7);
-  };
-  img.src = URL.createObjectURL(file);
-}
+    </div>
 
-// ── Keyboard shortcuts ──
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    document.getElementById('pw-modal').classList.remove('show');
-    document.getElementById('feedback-modal').classList.remove('show');
-    document.getElementById('tool-modal').classList.remove('show');
-  }
-  if (e.key === 'Enter' && document.getElementById('pw-modal').classList.contains('show')) checkPassword();
-  if (e.key === 'Enter' && document.getElementById('auth-screen').style.display !== 'none') {
-    const activeTab = document.querySelector('.auth-tab.active');
-    if (activeTab?.textContent === 'Login') doLogin();
-    else doRegister();
-  }
-});
-</script>
+    <script>
+        // 🚨 ඔයාගේ Apps Script URL එක මෙතනට දාන්න (දැනටමත් මම දාලා තියෙන්නේ)
+        const API_URL = "https://script.google.com/macros/s/AKfycbx4aMdtRli0GdhU2ZuOqiOWgDevpP0ISCbP2tCL7yxQarE-0FEjD82NVrHuue_L_Sx4hw/exec";
+        
+        let isLogin = true;
+        let currentUser = null;
+        let globalCards =[];
+        let siteSettings = { DirectAdLink: "", PopunderScript: "", AdWaitTime: 15 };
+
+        // Toggle Dark Mode
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const icon = document.getElementById('dark-icon');
+            if(document.documentElement.classList.contains('dark')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+                icon.classList.add('text-yellow-400');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+                icon.classList.remove('text-yellow-400');
+            }
+        }
+
+        // Toggle Auth View
+        function toggleAuth() {
+            isLogin = !isLogin;
+            document.getElementById('auth-title').innerText = isLogin ? "Welcome Back" : "Create Account";
+            document.getElementById('auth-email').style.display = isLogin ? "none" : "block";
+            document.getElementById('auth-email').required = !isLogin;
+            document.getElementById('auth-switch-text').innerText = isLogin ? "Don't have an account?" : "Already have an account?";
+            document.getElementById('auth-switch-btn').innerText = isLogin ? "Register here" : "Login here";
+        }
+
+        // API Fetch Helper function
+        async function apiCall(action, params = {}) {
+            const formData = new URLSearchParams();
+            formData.append('action', action);
+            for (let key in params) formData.append(key, params[key]);
+            
+            try {
+                const res = await fetch(API_URL, { method: 'POST', body: formData });
+                return await res.json();
+            } catch (err) {
+                console.error(err);
+                return { status: "error", message: "Network Error!" };
+            }
+        }
+
+        // Handle Login / Register
+        async function handleAuth(e) {
+            e.preventDefault();
+            document.getElementById('loading').style.display = 'flex';
+            const email = document.getElementById('auth-email').value;
+            const user = document.getElementById('auth-username').value;
+            const pass = document.getElementById('auth-password').value;
+
+            const action = isLogin ? 'login' : 'register';
+            const res = await apiCall(action, { email, username: user, password: pass });
+            document.getElementById('loading').style.display = 'none';
+
+            if (res.status === 'success') {
+                if (isLogin) {
+                    currentUser = { username: res.username, role: res.role };
+                    Swal.fire({ icon: 'success', title: 'Welcome!', text: 'Successfully logged in.', timer: 1500, showConfirmButton: false });
+                    initApp();
+                } else {
+                    Swal.fire('Success', 'Registration complete. Please login.', 'success');
+                    toggleAuth();
+                }
+            } else {
+                Swal.fire('Error', res.message, 'error');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('main-view').classList.add('hidden');
+            document.getElementById('auth-view').classList.remove('hidden');
+            document.getElementById('auth-view').classList.add('flex');
+            document.getElementById('admin-btn').classList.add('hidden');
+        }
+
+        // Initialize Application
+        async function initApp() {
+            document.getElementById('auth-view').classList.replace('flex', 'hidden');
+            document.getElementById('main-view').classList.remove('hidden');
+            document.getElementById('loading').style.display = 'flex';
+
+            if (currentUser.role === 'admin') document.getElementById('admin-btn').classList.remove('hidden');
+
+            await loadSettings();
+            await loadCards();
+            
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        async function loadSettings() {
+            try {
+                const res = await fetch(API_URL + "?action=getSettings");
+                const json = await res.json();
+                if(json.status === 'success') {
+                    siteSettings = json.data;
+                    document.getElementById('ad-direct').value = siteSettings.DirectAdLink || "";
+                    document.getElementById('ad-popunder').value = siteSettings.PopunderScript || "";
+                    document.getElementById('ad-wait').value = siteSettings.AdWaitTime || 15;
+                    
+                    // Inject Popunder if available (Adsterra/Monetag)
+                    if(siteSettings.PopunderScript && siteSettings.PopunderScript.includes('<script')) {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = siteSettings.PopunderScript;
+                        Array.from(tempDiv.getElementsByTagName('script')).forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                            document.body.appendChild(newScript);
+                        });
+                    }
+                }
+            } catch(e) {}
+        }
+
+        async function loadCards() {
+            try {
+                const res = await fetch(API_URL + "?action=getCards");
+                const json = await res.json();
+                if(json.status === 'success') {
+                    globalCards = json.data;
+                    renderCards(globalCards);
+                }
+            } catch(e) {}
+        }
+
+        // Render Cards to Screen
+        function renderCards(cardsArray) {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+            
+            if(cardsArray.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-center text-gray-500">No content available yet.</p>`;
+                return;
+            }
+
+            cardsArray.forEach((card, index) => {
+                const delay = index * 0.1;
+                const cardHTML = `
+                <div class="glass-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 animate__animated animate__fadeInUp" style="animation-delay: ${delay}s">
+                    <div class="h-48 bg-gray-200 dark:bg-gray-700 relative overflow-hidden group">
+                        <img src="${card.thumbnail || 'https://via.placeholder.com/400x200'}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Thumb">
+                        <div class="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-bold">${card.emoji}</div>
+                        ${card.isProtected === true || card.isProtected === 'TRUE' ? `<div class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs"><i class="fa-solid fa-lock"></i> Protected</div>` : ''}
+                    </div>
+                    <div class="p-5">
+                        <h4 class="text-xl font-bold mb-2 line-clamp-1">${card.title}</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2">${card.description}</p>
+                        <button onclick="handleDownload('${card.id}')" class="w-full bg-primary hover:bg-indigo-600 text-white font-bold py-2 rounded-lg flex items-center justify-center gap-2 transition shadow-md">
+                            <i class="fa-solid fa-cloud-arrow-down"></i> Access Content
+                        </button>
+                        ${currentUser.role === 'admin' ? `<button onclick="deleteCard('${card.id}')" class="w-full mt-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-bold py-1 rounded-lg transition text-sm">Delete (Admin)</button>` : ''}
+                    </div>
+                </div>`;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        // Filter Cards Search
+        function filterCards() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = globalCards.filter(c => c.title.toLowerCase().includes(query) || c.description.toLowerCase().includes(query));
+            renderCards(filtered);
+        }
+
+        // --- Core AD Logic & Unlock System ---
+        async function handleDownload(cardId) {
+            const card = globalCards.find(c => c.id == cardId);
+            
+            // Step 1: Check Password
+            if (card.isProtected === true || card.isProtected === 'TRUE') {
+                const { value: password } = await Swal.fire({
+                    title: 'Secured Content',
+                    input: 'password',
+                    inputLabel: 'Enter the password to unlock',
+                    inputPlaceholder: 'Password',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4f46e5'
+                });
+                if (!password) return;
+                if (password !== card.password.toString()) {
+                    return Swal.fire('Error', 'Incorrect Password!', 'error');
+                }
+            }
+
+            // Step 2: Ad Timer Logic
+            if(siteSettings.DirectAdLink) {
+                let waitTime = parseInt(siteSettings.AdWaitTime) || 15;
+                
+                Swal.fire({
+                    title: 'Unlock Link',
+                    html: `
+                        <p class="mb-4 text-sm text-gray-500">Please click the button below to verify and unlock your link.</p>
+                        <button id="ad-btn" class="bg-gradient-to-r from-orange-400 to-red-500 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:scale-105 transition animate__animated animate__pulse animate__infinite">
+                            <i class="fa-solid fa-play"></i> Click to Verify (Ads)
+                        </button>
+                        <p id="timer-text" class="mt-4 font-bold text-xl text-primary hidden"></p>
+                    `,
+                    showConfirmButton: false,
+                    allowOutsideClick: false
+                });
+
+                document.getElementById('ad-btn').addEventListener('click', () => {
+                    // Open Ad in new tab
+                    window.open(siteSettings.DirectAdLink, '_blank');
+                    
+                    // Start Timer
+                    const btn = document.getElementById('ad-btn');
+                    const timerText = document.getElementById('timer-text');
+                    btn.style.display = 'none';
+                    timerText.style.display = 'block';
+                    
+                    let count = waitTime;
+                    timerText.innerText = `Please wait ${count} seconds...`;
+                    
+                    const interval = setInterval(() => {
+                        count--;
+                        timerText.innerText = `Please wait ${count} seconds...`;
+                        if(count <= 0) {
+                            clearInterval(interval);
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Unlocked!',
+                                text: 'Your link is ready.',
+                                confirmButtonText: '<i class="fa-solid fa-download"></i> Go to Link',
+                                confirmButtonColor: '#10b981'
+                            }).then((result) => {
+                                if(result.isConfirmed) window.open(card.link, '_blank');
+                            });
+                        }
+                    }, 1000);
+                });
+
+            } else {
+                // No Ads set, direct open
+                window.open(card.link, '_blank');
+            }
+        }
+
+        // Admin Functions
+        function openAdmin() { document.getElementById('admin-modal').classList.remove('hidden'); }
+        function closeAdmin() { document.getElementById('admin-modal').classList.add('hidden'); }
+
+        async function saveAdSettings() {
+            const dl = document.getElementById('ad-direct').value;
+            const ps = document.getElementById('ad-popunder').value;
+            const aw = document.getElementById('ad-wait').value;
+            
+            Swal.fire({title: 'Saving...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+            await apiCall('updateSettings', { DirectAdLink: dl, PopunderScript: ps, AdWaitTime: aw });
+            Swal.fire('Saved!', 'Ad Settings Updated.', 'success');
+            loadSettings();
+        }
+
+        async function saveNewCard() {
+            const title = document.getElementById('card-title').value;
+            if(!title) return Swal.fire('Error', 'Title is required!', 'error');
+            
+            const params = {
+                title: title,
+                emoji: document.getElementById('card-emoji').value || '📁',
+                thumbnail: document.getElementById('card-thumb').value,
+                description: document.getElementById('card-desc').value,
+                link: document.getElementById('card-link').value,
+                isProtected: document.getElementById('card-ispass').checked ? 'TRUE' : 'FALSE',
+                password: document.getElementById('card-pass').value || ''
+            };
+
+            Swal.fire({title: 'Publishing...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+            await apiCall('addCard', params);
+            Swal.fire('Success', 'Card Added Successfully!', 'success');
+            
+            // Clear inputs
+            document.querySelectorAll('#admin-modal input, #admin-modal textarea').forEach(el => {
+                if(el.type !== 'checkbox' && !el.id.startsWith('ad-')) el.value = '';
+            });
+            document.getElementById('card-ispass').checked = false;
+            document.getElementById('card-pass').classList.add('hidden');
+            
+            loadCards();
+        }
+
+        async function deleteCard(id) {
+            if(confirm("Are you sure you want to delete this card?")) {
+                document.getElementById('loading').style.display = 'flex';
+                await apiCall('deleteCard', { id: id });
+                await loadCards();
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        async function submitFeedback() {
+            const msg = document.getElementById('feedback-msg').value;
+            if(!msg) return Swal.fire('Error', 'Please enter a message', 'error');
+            
+            document.getElementById('loading').style.display = 'flex';
+            await apiCall('addFeedback', { username: currentUser.username, message: msg });
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('feedback-msg').value = '';
+            Swal.fire('Thank You!', 'Your feedback has been submitted.', 'success');
+        }
+
+        // Start Up
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('auth-view').classList.remove('hidden');
+        document.getElementById('auth-view').classList.add('flex');
+    </script>
 </body>
 </html>
